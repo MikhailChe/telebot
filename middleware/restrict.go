@@ -1,6 +1,9 @@
 package middleware
 
-import tele "gopkg.in/telebot.v3"
+import (
+	"context"
+	tele "gopkg.in/telebot.v3"
+)
 
 // RestrictConfig defines config for Restrict middleware.
 type RestrictConfig struct {
@@ -29,13 +32,13 @@ func Restrict(v RestrictConfig) tele.MiddlewareFunc {
 		if v.Out == nil {
 			v.Out = next
 		}
-		return func(c tele.Context) error {
+		return func(ctx context.Context, c tele.Context) error {
 			for _, chat := range v.Chats {
 				if chat == c.Sender().ID {
-					return v.In(c)
+					return v.In(ctx, c)
 				}
 			}
-			return v.Out(c)
+			return v.Out(ctx, c)
 		}
 	}
 }
@@ -47,7 +50,7 @@ func Blacklist(chats ...int64) tele.MiddlewareFunc {
 		return Restrict(RestrictConfig{
 			Chats: chats,
 			Out:   next,
-			In:    func(c tele.Context) error { return nil },
+			In:    func(ctx context.Context, c tele.Context) error { return nil },
 		})(next)
 	}
 }
@@ -59,7 +62,7 @@ func Whitelist(chats ...int64) tele.MiddlewareFunc {
 		return Restrict(RestrictConfig{
 			Chats: chats,
 			In:    next,
-			Out:   func(c tele.Context) error { return nil },
+			Out:   func(ctx context.Context, c tele.Context) error { return nil },
 		})(next)
 	}
 }

@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"sync"
@@ -9,7 +10,7 @@ import (
 
 // HandlerFunc represents a handler function, which is
 // used to handle actual endpoints.
-type HandlerFunc func(Context) error
+type HandlerFunc func(context.Context, Context) error
 
 // Context wraps an update and represents the context of current event.
 type Context interface {

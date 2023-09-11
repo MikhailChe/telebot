@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 
@@ -18,10 +19,10 @@ func Logger(logger ...*log.Logger) tele.MiddlewareFunc {
 	}
 
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
-		return func(c tele.Context) error {
+		return func(ctx context.Context, c tele.Context) error {
 			data, _ := json.MarshalIndent(c.Update(), "", "  ")
 			l.Println(string(data))
-			return next(c)
+			return next(ctx, c)
 		}
 	}
 }

@@ -429,7 +429,7 @@ func (b *Bot) handleMediaCtx(ctx context.Context, c Context) bool {
 
 func (b *Bot) runHandlerCtx(ctx context.Context, h HandlerFunc, c Context) {
 	f := func() {
-		if err := h(c); err != nil {
+		if err := h(ctx, c); err != nil {
 			b.OnError(err, c)
 		}
 	}

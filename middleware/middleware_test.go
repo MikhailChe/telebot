@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,15 +17,15 @@ func TestRecover(t *testing.T) {
 		require.Error(t, err, "recover test")
 	}
 
-	h := func(c tele.Context) error {
+	h := func(ctx context.Context, c tele.Context) error {
 		panic("recover test")
 	}
 
 	assert.Panics(t, func() {
-		h(nil)
+		h(context.Background(), nil)
 	})
 
 	assert.NotPanics(t, func() {
-		Recover(onError)(h)(nil)
+		Recover(onError)(h)(context.Background(), nil)
 	})
 }

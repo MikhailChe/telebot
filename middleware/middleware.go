@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 
 	tele "gopkg.in/telebot.v3"
@@ -10,11 +11,11 @@ import (
 // to every callback.
 func AutoRespond() tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
-		return func(c tele.Context) error {
+		return func(ctx context.Context, c tele.Context) error {
 			if c.Callback() != nil {
 				defer c.Respond()
 			}
-			return next(c)
+			return next(ctx, c)
 		}
 	}
 }
@@ -23,11 +24,11 @@ func AutoRespond() tele.MiddlewareFunc {
 // "sent via" messages.
 func IgnoreVia() tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
-		return func(c tele.Context) error {
+		return func(ctx context.Context, c tele.Context) error {
 			if msg := c.Message(); msg != nil && msg.Via != nil {
 				return nil
 			}
-			return next(c)
+			return next(ctx, c)
 		}
 	}
 }
@@ -36,7 +37,7 @@ func IgnoreVia() tele.MiddlewareFunc {
 // the handler.
 func Recover(onError ...func(error)) tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
-		return func(c tele.Context) error {
+		return func(ctx context.Context, c tele.Context) error {
 			var f func(error)
 			if len(onError) > 0 {
 				f = onError[0]
@@ -56,7 +57,7 @@ func Recover(onError ...func(error)) tele.MiddlewareFunc {
 				}
 			}()
 
-			return next(c)
+			return next(ctx, c)
 		}
 	}
 }

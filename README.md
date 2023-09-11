@@ -67,7 +67,7 @@ func main() {
 		return
 	}
 
-	b.Handle("/hello", func(c tele.Context) error {
+	b.Handle("/hello", func(ctx context.Context, c tele.Context) error {
 		return c.Send("Hello!")
 	})
 
@@ -94,7 +94,7 @@ getting, for example, the chat that this update had been sent in, no matter
 what kind of update this is.
 
 ```go
-b.Handle(tele.OnText, func(c tele.Context) error {
+b.Handle(tele.OnText, func(ctx context.Context, c tele.Context) error {
 	// All the text messages that weren't
 	// captured by existing handlers.
 
@@ -114,17 +114,17 @@ b.Handle(tele.OnText, func(c tele.Context) error {
 	return c.Send(text)
 })
 
-b.Handle(tele.OnChannelPost, func(c tele.Context) error {
+b.Handle(tele.OnChannelPost, func(ctx context.Context, c tele.Context) error {
 	// Channel posts only.
 	msg := c.Message()
 })
 
-b.Handle(tele.OnPhoto, func(c tele.Context) error {
+b.Handle(tele.OnPhoto, func(ctx context.Context, c tele.Context) error {
 	// Photos only.
 	photo := c.Message().Photo
 })
 
-b.Handle(tele.OnQuery, func(c tele.Context) error {
+b.Handle(tele.OnQuery, func(ctx context.Context, c tele.Context) error {
 	// Incoming inline queries.
 	return c.Answer(...)
 })
@@ -158,7 +158,7 @@ Custom middleware example:
 ```go
 // AutoResponder automatically responds to every callback update.
 func AutoResponder(next tele.HandlerFunc) tele.HandlerFunc {
-	return func(c tele.Context) error {
+	return func(ctx context.Context, c tele.Context) error {
 		if c.Callback() != nil {
 			defer c.Respond()
 		}
@@ -196,7 +196,7 @@ other bot, even if [privacy mode](https://core.telegram.org/bots#privacy-mode) i
 For simplified deep-linking, Telebot also extracts payload:
 ```go
 // Command: /start <PAYLOAD>
-b.Handle("/start", func(c tele.Context) error {
+b.Handle("/start", func(ctx context.Context, c tele.Context) error {
 	fmt.Println(c.Message().Payload) // <PAYLOAD>
 })
 ```
@@ -204,7 +204,7 @@ b.Handle("/start", func(c tele.Context) error {
 For multiple arguments use:
 ```go
 // Command: /tags <tag1> <tag2> <...>
-b.Handle("/tags", func(c tele.Context) error {
+b.Handle("/tags", func(ctx context.Context, c tele.Context) error {
 	tags := c.Args() // list of arguments splitted by a space
 	for _, tag := range tags {
 		// iterate through passed arguments
@@ -394,17 +394,17 @@ selector.Inline(
 	selector.Row(btnPrev, btnNext),
 )
 
-b.Handle("/start", func(c tele.Context) error {
+b.Handle("/start", func(ctx context.Context, c tele.Context) error {
 	return c.Send("Hello!", menu)
 })
 
 // On reply button pressed (message)
-b.Handle(&btnHelp, func(c tele.Context) error {
+b.Handle(&btnHelp, func(ctx context.Context, c tele.Context) error {
 	return c.Edit("Here is some help: ...")
 })
 
 // On inline button pressed (callback)
-b.Handle(&btnPrev, func(c tele.Context) error {
+b.Handle(&btnPrev, func(ctx context.Context, c tele.Context) error {
 	return c.Respond()
 })
 ```
@@ -435,7 +435,7 @@ back. I think at the time of writing, Telebot supports all of the provided resul
 types (but not the cached ones). This is what it looks like:
 
 ```go
-b.Handle(tele.OnQuery, func(c tele.Context) error {
+b.Handle(tele.OnQuery, func(ctx context.Context, c tele.Context) error {
 	urls := []string{
 		"http://photo.jpg",
 		"http://photo2.jpg",

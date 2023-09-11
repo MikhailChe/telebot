@@ -161,11 +161,11 @@ var (
 //
 // Example:
 //
-//	b.Handle("/start", func (c tele.Context) error {
+//	b.Handle("/start", func (ctx context.Context, c tele.Context) error {
 //		return c.Reply("Hello!")
 //	})
 //
-//	b.Handle(&inlineButton, func (c tele.Context) error {
+//	b.Handle(&inlineButton, func (ctx context.Context, c tele.Context) error {
 //		return c.Respond(&tele.CallbackResponse{Text: "Hello!"})
 //	})
 //
@@ -177,8 +177,8 @@ func (b *Bot) Handle(endpoint interface{}, h HandlerFunc, m ...MiddlewareFunc) {
 		m = append(b.group.middleware, m...)
 	}
 
-	handler := func(c Context) error {
-		return applyMiddleware(h, m...)(c)
+	handler := func(ctx context.Context, c Context) error {
+		return applyMiddleware(h, m...)(ctx, c)
 	}
 
 	switch end := endpoint.(type) {
