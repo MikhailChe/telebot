@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	tele "gopkg.in/telebot.v3"
+	tele "github.com/mikhailche/telebot"
 )
 
 // RestrictConfig defines config for Restrict middleware.
