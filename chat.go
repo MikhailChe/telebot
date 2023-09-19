@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 	"time"
@@ -162,14 +163,13 @@ func (c *ChatMemberUpdate) Time() time.Time {
 //
 // Example:
 //
-//		group := tele.ChatID(-100756389456)
-//		b.Send(group, "Hello!")
+//	group := tele.ChatID(-100756389456)
+//	b.Send(group, "Hello!")
 //
-//		type Config struct {
-//			AdminGroup tele.ChatID `json:"admin_group"`
-//		}
-//		b.Send(conf.AdminGroup, "Hello!")
-//
+//	type Config struct {
+//		AdminGroup tele.ChatID `json:"admin_group"`
+//	}
+//	b.Send(conf.AdminGroup, "Hello!")
 type ChatID int64
 
 // Recipient returns chat ID (see Recipient interface).
@@ -245,7 +245,7 @@ func (b *Bot) InviteLink(chat *Chat) (string, error) {
 		"chat_id": chat.Recipient(),
 	}
 
-	data, err := b.Raw("exportChatInviteLink", params)
+	data, err := b.Raw(context.TODO(), "exportChatInviteLink", params)
 	if err != nil {
 		return "", err
 	}
@@ -277,7 +277,7 @@ func (b *Bot) CreateInviteLink(chat Recipient, link *ChatInviteLink) (*ChatInvit
 		}
 	}
 
-	data, err := b.Raw("createChatInviteLink", params)
+	data, err := b.Raw(context.TODO(), "createChatInviteLink", params)
 	if err != nil {
 		return nil, err
 	}
@@ -311,7 +311,7 @@ func (b *Bot) EditInviteLink(chat Recipient, link *ChatInviteLink) (*ChatInviteL
 		}
 	}
 
-	data, err := b.Raw("editChatInviteLink", params)
+	data, err := b.Raw(context.TODO(), "editChatInviteLink", params)
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +333,7 @@ func (b *Bot) RevokeInviteLink(chat Recipient, link string) (*ChatInviteLink, er
 		"invite_link": link,
 	}
 
-	data, err := b.Raw("revokeChatInviteLink", params)
+	data, err := b.Raw(context.TODO(), "revokeChatInviteLink", params)
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +355,7 @@ func (b *Bot) ApproveJoinRequest(chat Recipient, user *User) error {
 		"user_id": user.Recipient(),
 	}
 
-	data, err := b.Raw("approveChatJoinRequest", params)
+	data, err := b.Raw(context.TODO(), "approveChatJoinRequest", params)
 	if err != nil {
 		return err
 	}
@@ -370,7 +370,7 @@ func (b *Bot) DeclineJoinRequest(chat Recipient, user *User) error {
 		"user_id": user.Recipient(),
 	}
 
-	data, err := b.Raw("declineChatJoinRequest", params)
+	data, err := b.Raw(context.TODO(), "declineChatJoinRequest", params)
 	if err != nil {
 		return err
 	}
@@ -385,7 +385,7 @@ func (b *Bot) SetGroupTitle(chat *Chat, title string) error {
 		"title":   title,
 	}
 
-	_, err := b.Raw("setChatTitle", params)
+	_, err := b.Raw(context.TODO(), "setChatTitle", params)
 	return err
 }
 
@@ -396,7 +396,7 @@ func (b *Bot) SetGroupDescription(chat *Chat, description string) error {
 		"description": description,
 	}
 
-	_, err := b.Raw("setChatDescription", params)
+	_, err := b.Raw(context.TODO(), "setChatDescription", params)
 	return err
 }
 
@@ -417,7 +417,7 @@ func (b *Bot) SetGroupStickerSet(chat *Chat, setName string) error {
 		"sticker_set_name": setName,
 	}
 
-	_, err := b.Raw("setChatStickerSet", params)
+	_, err := b.Raw(context.TODO(), "setChatStickerSet", params)
 	return err
 }
 
@@ -428,7 +428,7 @@ func (b *Bot) SetGroupPermissions(chat *Chat, perms Rights) error {
 		"permissions": perms,
 	}
 
-	_, err := b.Raw("setChatPermissions", params)
+	_, err := b.Raw(context.TODO(), "setChatPermissions", params)
 	return err
 }
 
@@ -438,7 +438,7 @@ func (b *Bot) DeleteGroupPhoto(chat *Chat) error {
 		"chat_id": chat.Recipient(),
 	}
 
-	_, err := b.Raw("deleteChatPhoto", params)
+	_, err := b.Raw(context.TODO(), "deleteChatPhoto", params)
 	return err
 }
 
@@ -448,6 +448,6 @@ func (b *Bot) DeleteGroupStickerSet(chat *Chat) error {
 		"chat_id": chat.Recipient(),
 	}
 
-	_, err := b.Raw("deleteChatStickerSet", params)
+	_, err := b.Raw(context.TODO(), "deleteChatStickerSet", params)
 	return err
 }

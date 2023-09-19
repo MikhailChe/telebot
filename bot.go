@@ -395,7 +395,7 @@ func (b *Bot) Forward(to Recipient, msg Editable, opts ...interface{}) (*Message
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw("forwardMessage", params)
+	data, err := b.Raw(context.TODO(), "forwardMessage", params)
 	if err != nil {
 		return nil, err
 	}
@@ -421,7 +421,7 @@ func (b *Bot) Copy(to Recipient, msg Editable, options ...interface{}) (*Message
 	sendOpts := extractOptions(options)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw("copyMessage", params)
+	data, err := b.Raw(context.TODO(), "copyMessage", params)
 	if err != nil {
 		return nil, err
 	}
@@ -488,7 +488,7 @@ func (b *Bot) Edit(msg Editable, what interface{}, opts ...interface{}) (*Messag
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw(method, params)
+	data, err := b.Raw(context.TODO(), method, params)
 	if err != nil {
 		return nil, err
 	}
@@ -522,7 +522,7 @@ func (b *Bot) EditReplyMarkup(msg Editable, markup *ReplyMarkup) (*Message, erro
 	data, _ := json.Marshal(markup)
 	params["reply_markup"] = string(data)
 
-	data, err := b.Raw("editMessageReplyMarkup", params)
+	data, err := b.Raw(context.TODO(), "editMessageReplyMarkup", params)
 	if err != nil {
 		return nil, err
 	}
@@ -552,7 +552,7 @@ func (b *Bot) EditCaption(msg Editable, caption string, opts ...interface{}) (*M
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw("editMessageCaption", params)
+	data, err := b.Raw(context.TODO(), "editMessageCaption", params)
 	if err != nil {
 		return nil, err
 	}
@@ -667,7 +667,7 @@ func (b *Bot) Delete(msg Editable) error {
 		"message_id": msgID,
 	}
 
-	_, err := b.Raw("deleteMessage", params)
+	_, err := b.Raw(context.TODO(), "deleteMessage", params)
 	return err
 }
 
@@ -690,7 +690,7 @@ func (b *Bot) Notify(to Recipient, action ChatAction) error {
 		"action":  string(action),
 	}
 
-	_, err := b.Raw("sendChatAction", params)
+	_, err := b.Raw(context.TODO(), "sendChatAction", params)
 	return err
 }
 
@@ -727,7 +727,7 @@ func (b *Bot) Ship(query *ShippingQuery, what ...interface{}) error {
 		params["shipping_options"] = string(data)
 	}
 
-	_, err := b.Raw("answerShippingQuery", params)
+	_, err := b.Raw(context.TODO(), "answerShippingQuery", params)
 	return err
 }
 
@@ -744,7 +744,7 @@ func (b *Bot) Accept(query *PreCheckoutQuery, errorMessage ...string) error {
 		params["error_message"] = errorMessage[0]
 	}
 
-	_, err := b.Raw("answerPreCheckoutQuery", params)
+	_, err := b.Raw(context.TODO(), "answerPreCheckoutQuery", params)
 	return err
 }
 
@@ -756,7 +756,7 @@ func (b *Bot) Accept(query *PreCheckoutQuery, errorMessage ...string) error {
 //
 //	b.Respond(c)
 //	b.Respond(c, response)
-func (b *Bot) Respond(c *Callback, resp ...*CallbackResponse) error {
+func (b *Bot) Respond(ctx context.Context, c *Callback, resp ...*CallbackResponse) error {
 	var r *CallbackResponse
 	if resp == nil {
 		r = &CallbackResponse{}
@@ -765,7 +765,7 @@ func (b *Bot) Respond(c *Callback, resp ...*CallbackResponse) error {
 	}
 
 	r.CallbackID = c.ID
-	_, err := b.Raw("answerCallbackQuery", r)
+	_, err := b.Raw(ctx, "answerCallbackQuery", r)
 	return err
 }
 
@@ -779,7 +779,7 @@ func (b *Bot) Answer(query *Query, resp *QueryResponse) error {
 		result.Process(b)
 	}
 
-	_, err := b.Raw("answerInlineQuery", resp)
+	_, err := b.Raw(context.TODO(), "answerInlineQuery", resp)
 	return err
 }
 
@@ -793,7 +793,7 @@ func (b *Bot) AnswerWebApp(query *Query, r Result) (*WebAppMessage, error) {
 		"result":           r,
 	}
 
-	data, err := b.Raw("answerWebAppQuery", params)
+	data, err := b.Raw(context.TODO(), "answerWebAppQuery", params)
 	if err != nil {
 		return nil, err
 	}
@@ -818,7 +818,7 @@ func (b *Bot) FileByID(fileID string) (File, error) {
 		"file_id": fileID,
 	}
 
-	data, err := b.Raw("getFile", params)
+	data, err := b.Raw(context.TODO(), "getFile", params)
 	if err != nil {
 		return File{}, err
 	}
@@ -903,7 +903,7 @@ func (b *Bot) StopLiveLocation(msg Editable, opts ...interface{}) (*Message, err
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw("stopMessageLiveLocation", params)
+	data, err := b.Raw(context.TODO(), "stopMessageLiveLocation", params)
 	if err != nil {
 		return nil, err
 	}
@@ -927,7 +927,7 @@ func (b *Bot) StopPoll(msg Editable, opts ...interface{}) (*Poll, error) {
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw("stopPoll", params)
+	data, err := b.Raw(context.TODO(), "stopPoll", params)
 	if err != nil {
 		return nil, err
 	}
@@ -947,7 +947,7 @@ func (b *Bot) Leave(chat *Chat) error {
 		"chat_id": chat.Recipient(),
 	}
 
-	_, err := b.Raw("leaveChat", params)
+	_, err := b.Raw(context.TODO(), "leaveChat", params)
 	return err
 }
 
@@ -966,7 +966,7 @@ func (b *Bot) Pin(msg Editable, opts ...interface{}) error {
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	_, err := b.Raw("pinChatMessage", params)
+	_, err := b.Raw(context.TODO(), "pinChatMessage", params)
 	return err
 }
 
@@ -980,7 +980,7 @@ func (b *Bot) Unpin(chat *Chat, messageID ...int) error {
 		params["message_id"] = strconv.Itoa(messageID[0])
 	}
 
-	_, err := b.Raw("unpinChatMessage", params)
+	_, err := b.Raw(context.TODO(), "unpinChatMessage", params)
 	return err
 }
 
@@ -991,7 +991,7 @@ func (b *Bot) UnpinAll(chat *Chat) error {
 		"chat_id": chat.Recipient(),
 	}
 
-	_, err := b.Raw("unpinAllChatMessages", params)
+	_, err := b.Raw(context.TODO(), "unpinAllChatMessages", params)
 	return err
 }
 
@@ -1009,7 +1009,7 @@ func (b *Bot) ChatByUsername(name string) (*Chat, error) {
 		"chat_id": name,
 	}
 
-	data, err := b.Raw("getChat", params)
+	data, err := b.Raw(context.TODO(), "getChat", params)
 	if err != nil {
 		return nil, err
 	}
@@ -1032,7 +1032,7 @@ func (b *Bot) ProfilePhotosOf(user *User) ([]Photo, error) {
 		"user_id": user.Recipient(),
 	}
 
-	data, err := b.Raw("getUserProfilePhotos", params)
+	data, err := b.Raw(context.TODO(), "getUserProfilePhotos", params)
 	if err != nil {
 		return nil, err
 	}
@@ -1056,7 +1056,7 @@ func (b *Bot) ChatMemberOf(chat, user Recipient) (*ChatMember, error) {
 		"user_id": user.Recipient(),
 	}
 
-	data, err := b.Raw("getChatMember", params)
+	data, err := b.Raw(context.TODO(), "getChatMember", params)
 	if err != nil {
 		return nil, err
 	}
@@ -1077,7 +1077,7 @@ func (b *Bot) MenuButton(chat *User) (*MenuButton, error) {
 		"chat_id": chat.Recipient(),
 	}
 
-	data, err := b.Raw("getChatMenuButton", params)
+	data, err := b.Raw(context.TODO(), "getChatMenuButton", params)
 	if err != nil {
 		return nil, err
 	}
@@ -1110,13 +1110,13 @@ func (b *Bot) SetMenuButton(chat *User, mb interface{}) error {
 		params["menu_button"] = v
 	}
 
-	_, err := b.Raw("setChatMenuButton", params)
+	_, err := b.Raw(context.TODO(), "setChatMenuButton", params)
 	return err
 }
 
 // Logout logs out from the cloud Bot API server before launching the bot locally.
 func (b *Bot) Logout() (bool, error) {
-	data, err := b.Raw("logOut", nil)
+	data, err := b.Raw(context.TODO(), "logOut", nil)
 	if err != nil {
 		return false, err
 	}
@@ -1133,7 +1133,7 @@ func (b *Bot) Logout() (bool, error) {
 
 // Close closes the bot instance before moving it from one local server to another.
 func (b *Bot) Close() (bool, error) {
-	data, err := b.Raw("close", nil)
+	data, err := b.Raw(context.TODO(), "close", nil)
 	if err != nil {
 		return false, err
 	}

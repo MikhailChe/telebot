@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 	"time"
@@ -35,9 +36,8 @@ func NoRights() Rights { return Rights{} }
 // NoRestrictions should be used when un-restricting or
 // un-promoting user.
 //
-//		member.Rights = tele.NoRestrictions()
-//		b.Restrict(chat, member)
-//
+//	member.Rights = tele.NoRestrictions()
+//	b.Restrict(chat, member)
 func NoRestrictions() Rights {
 	return Rights{
 		CanBeEdited:         true,
@@ -97,7 +97,7 @@ func (b *Bot) Ban(chat *Chat, member *ChatMember, revokeMessages ...bool) error 
 		params["revoke_messages"] = strconv.FormatBool(revokeMessages[0])
 	}
 
-	_, err := b.Raw("kickChatMember", params)
+	_, err := b.Raw(context.TODO(), "kickChatMember", params)
 	return err
 }
 
@@ -113,18 +113,17 @@ func (b *Bot) Unban(chat *Chat, user *User, forBanned ...bool) error {
 		params["only_if_banned"] = strconv.FormatBool(forBanned[0])
 	}
 
-	_, err := b.Raw("unbanChatMember", params)
+	_, err := b.Raw(context.TODO(), "unbanChatMember", params)
 	return err
 }
 
 // Restrict lets you restrict a subset of member's rights until
 // member.RestrictedUntil, such as:
 //
-//     * can send messages
-//     * can send media
-//     * can send other
-//     * can add web page previews
-//
+//   - can send messages
+//   - can send media
+//   - can send other
+//   - can add web page previews
 func (b *Bot) Restrict(chat *Chat, member *ChatMember) error {
 	prv, until := member.Rights, member.RestrictedUntil
 
@@ -135,21 +134,20 @@ func (b *Bot) Restrict(chat *Chat, member *ChatMember) error {
 	}
 	embedRights(params, prv)
 
-	_, err := b.Raw("restrictChatMember", params)
+	_, err := b.Raw(context.TODO(), "restrictChatMember", params)
 	return err
 }
 
 // Promote lets you update member's admin rights, such as:
 //
-//     * can change info
-//     * can post messages
-//     * can edit messages
-//     * can delete messages
-//     * can invite users
-//     * can restrict members
-//     * can pin messages
-//     * can promote members
-//
+//   - can change info
+//   - can post messages
+//   - can edit messages
+//   - can delete messages
+//   - can invite users
+//   - can restrict members
+//   - can pin messages
+//   - can promote members
 func (b *Bot) Promote(chat *Chat, member *ChatMember) error {
 	prv := member.Rights
 
@@ -160,7 +158,7 @@ func (b *Bot) Promote(chat *Chat, member *ChatMember) error {
 	}
 	embedRights(params, prv)
 
-	_, err := b.Raw("promoteChatMember", params)
+	_, err := b.Raw(context.TODO(), "promoteChatMember", params)
 	return err
 }
 
@@ -171,13 +169,12 @@ func (b *Bot) Promote(chat *Chat, member *ChatMember) error {
 //
 // If the chat is a group or a supergroup and
 // no administrators were appointed, only the creator will be returned.
-//
 func (b *Bot) AdminsOf(chat *Chat) ([]ChatMember, error) {
 	params := map[string]string{
 		"chat_id": chat.Recipient(),
 	}
 
-	data, err := b.Raw("getChatAdministrators", params)
+	data, err := b.Raw(context.TODO(), "getChatAdministrators", params)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +194,7 @@ func (b *Bot) Len(chat *Chat) (int, error) {
 		"chat_id": chat.Recipient(),
 	}
 
-	data, err := b.Raw("getChatMembersCount", params)
+	data, err := b.Raw(context.TODO(), "getChatMembersCount", params)
 	if err != nil {
 		return 0, err
 	}
@@ -220,7 +217,7 @@ func (b *Bot) SetAdminTitle(chat *Chat, user *User, title string) error {
 		"custom_title": title,
 	}
 
-	_, err := b.Raw("setChatAdministratorCustomTitle", params)
+	_, err := b.Raw(context.TODO(), "setChatAdministratorCustomTitle", params)
 	return err
 }
 
@@ -233,7 +230,7 @@ func (b *Bot) BanSenderChat(chat *Chat, sender Recipient) error {
 		"sender_chat_id": sender.Recipient(),
 	}
 
-	_, err := b.Raw("banChatSenderChat", params)
+	_, err := b.Raw(context.TODO(), "banChatSenderChat", params)
 	return err
 }
 
@@ -245,7 +242,7 @@ func (b *Bot) UnbanSenderChat(chat *Chat, sender Recipient) error {
 		"sender_chat_id": sender.Recipient(),
 	}
 
-	_, err := b.Raw("unbanChatSenderChat", params)
+	_, err := b.Raw(context.TODO(), "unbanChatSenderChat", params)
 	return err
 }
 
@@ -255,7 +252,7 @@ func (b *Bot) DefaultRights(forChannels bool) (*Rights, error) {
 		"for_channels": forChannels,
 	}
 
-	data, err := b.Raw("getMyDefaultAdministratorRights", params)
+	data, err := b.Raw(context.TODO(), "getMyDefaultAdministratorRights", params)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +274,7 @@ func (b *Bot) SetDefaultRights(rights Rights, forChannels bool) error {
 		"for_channels": forChannels,
 	}
 
-	_, err := b.Raw("setMyDefaultAdministratorRights", params)
+	_, err := b.Raw(context.TODO(), "setMyDefaultAdministratorRights", params)
 	return err
 }
 

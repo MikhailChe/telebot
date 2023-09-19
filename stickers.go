@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 )
@@ -74,7 +75,7 @@ func (b *Bot) UploadSticker(to Recipient, png *File) (*File, error) {
 
 // StickerSet returns a sticker set on success.
 func (b *Bot) StickerSet(name string) (*StickerSet, error) {
-	data, err := b.Raw("getStickerSet", map[string]string{"name": name})
+	data, err := b.Raw(context.TODO(), "getStickerSet", map[string]string{"name": name})
 	if err != nil {
 		return nil, err
 	}
@@ -152,13 +153,13 @@ func (b *Bot) SetStickerPosition(sticker string, position int) error {
 		"position": strconv.Itoa(position),
 	}
 
-	_, err := b.Raw("setStickerPositionInSet", params)
+	_, err := b.Raw(context.TODO(), "setStickerPositionInSet", params)
 	return err
 }
 
 // DeleteSticker deletes a sticker from a set created by the bot.
 func (b *Bot) DeleteSticker(sticker string) error {
-	_, err := b.Raw("deleteStickerFromSet", map[string]string{"sticker": sticker})
+	_, err := b.Raw(context.TODO(), "deleteStickerFromSet", map[string]string{"sticker": sticker})
 	return err
 
 }
@@ -171,7 +172,6 @@ func (b *Bot) DeleteSticker(sticker string) error {
 // up to 32 kilobytes in size.
 //
 // Animated sticker set thumbnail can't be uploaded via HTTP URL.
-//
 func (b *Bot) SetStickerSetThumb(to Recipient, s StickerSet) error {
 	files := make(map[string]File)
 	if s.PNG != nil {
@@ -197,7 +197,7 @@ func (b *Bot) CustomEmojiStickers(ids []string) ([]Sticker, error) {
 		"custom_emoji_ids": string(data),
 	}
 
-	data, err := b.Raw("getCustomEmojiStickers", params)
+	data, err := b.Raw(context.TODO(), "getCustomEmojiStickers", params)
 	if err != nil {
 		return nil, err
 	}

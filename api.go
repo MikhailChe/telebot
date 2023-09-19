@@ -18,7 +18,7 @@ import (
 // Raw lets you call any method of Bot API manually.
 // It also handles API errors, so you only need to unwrap
 // result field from json data.
-func (b *Bot) Raw(method string, payload interface{}) ([]byte, error) {
+func (b *Bot) Raw(ctx context.Context, method string, payload interface{}) ([]byte, error) {
 	url := b.URL + "/bot" + b.Token + "/" + method
 
 	var buf bytes.Buffer
@@ -30,7 +30,7 @@ func (b *Bot) Raw(method string, payload interface{}) ([]byte, error) {
 	// This may become important if doing long polling with long timeout.
 	exit := make(chan struct{})
 	defer close(exit)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	go func() {
@@ -85,7 +85,7 @@ func (b *Bot) sendFiles(method string, files map[string]File, params map[string]
 	}
 
 	if len(rawFiles) == 0 {
-		return b.Raw(method, params)
+		return b.Raw(context.TODO(), method, params)
 	}
 
 	pipeReader, pipeWriter := io.Pipe()
@@ -166,7 +166,7 @@ func (b *Bot) sendText(to Recipient, text string, opt *SendOptions) (*Message, e
 	}
 	b.embedSendOptions(params, opt)
 
-	data, err := b.Raw("sendMessage", params)
+	data, err := b.Raw(context.TODO(), "sendMessage", params)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (b *Bot) sendMedia(media Media, params map[string]string, files map[string]
 }
 
 func (b *Bot) getMe() (*User, error) {
-	data, err := b.Raw("getMe", nil)
+	data, err := b.Raw(context.TODO(), "getMe", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (b *Bot) getUpdates(offset, limit int, timeout time.Duration, allowed []str
 		params["limit"] = strconv.Itoa(limit)
 	}
 
-	data, err := b.Raw("getUpdates", params)
+	data, err := b.Raw(context.TODO(), "getUpdates", params)
 	if err != nil {
 		return nil, err
 	}

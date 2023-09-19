@@ -148,7 +148,7 @@ type Context interface {
 
 	// Respond sends a response for the current callback query.
 	// See Respond from bot.go.
-	Respond(resp ...*CallbackResponse) error
+	Respond(ctx context.Context, resp ...*CallbackResponse) error
 
 	// Get retrieves data from the context.
 	Get(key string) interface{}
@@ -456,11 +456,11 @@ func (c *nativeContext) Accept(errorMessage ...string) error {
 	return c.b.Accept(c.u.PreCheckoutQuery, errorMessage...)
 }
 
-func (c *nativeContext) Respond(resp ...*CallbackResponse) error {
+func (c *nativeContext) Respond(ctx context.Context, resp ...*CallbackResponse) error {
 	if c.u.Callback == nil {
 		return errors.New("telebot: context callback is nil")
 	}
-	return c.b.Respond(c.u.Callback, resp...)
+	return c.b.Respond(ctx, c.u.Callback, resp...)
 }
 
 func (c *nativeContext) Answer(resp *QueryResponse) error {
