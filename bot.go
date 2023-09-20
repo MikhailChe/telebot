@@ -266,7 +266,7 @@ func (b *Bot) NewContext(u Update) Context {
 //   - *ReplyMarkup (a component of SendOptions)
 //   - Option (a shortcut flag for popular options)
 //   - ParseMode (HTML, Markdown, etc)
-func (b *Bot) Send(to Recipient, what interface{}, opts ...interface{}) (*Message, error) {
+func (b *Bot) Send(ctx context.Context, to Recipient, what interface{}, opts ...interface{}) (*Message, error) {
 	if to == nil {
 		return nil, ErrBadRecipient
 	}
@@ -275,9 +275,9 @@ func (b *Bot) Send(to Recipient, what interface{}, opts ...interface{}) (*Messag
 
 	switch object := what.(type) {
 	case string:
-		return b.sendText(to, object, sendOpts)
+		return b.sendText(ctx, to, object, sendOpts)
 	case Sendable:
-		return object.Send(b, to, sendOpts)
+		return object.Send(ctx, b, to, sendOpts)
 	default:
 		return nil, ErrUnsupportedWhat
 	}
@@ -375,7 +375,7 @@ func (b *Bot) Reply(to *Message, what interface{}, opts ...interface{}) (*Messag
 	}
 
 	sendOpts.ReplyTo = to
-	return b.Send(to.Chat, what, sendOpts)
+	return b.Send(context.TODO(), to.Chat, what, sendOpts)
 }
 
 // Forward behaves just like Send() but of all options it only supports Silent (see Bots API).
@@ -444,7 +444,7 @@ func (b *Bot) Copy(to Recipient, msg Editable, options ...interface{}) (*Message
 //	b.Edit(m, tele.Location{42.1337, 69.4242})
 //	b.Edit(c, "edit inline message from the callback")
 //	b.Edit(r, "edit message from chosen inline result")
-func (b *Bot) Edit(msg Editable, what interface{}, opts ...interface{}) (*Message, error) {
+func (b *Bot) Edit(ctx context.Context, msg Editable, what interface{}, opts ...interface{}) (*Message, error) {
 	var (
 		method string
 		params = make(map[string]string)
@@ -488,7 +488,7 @@ func (b *Bot) Edit(msg Editable, what interface{}, opts ...interface{}) (*Messag
 	sendOpts := extractOptions(opts)
 	b.embedSendOptions(params, sendOpts)
 
-	data, err := b.Raw(context.TODO(), method, params)
+	data, err := b.Raw(ctx, method, params)
 	if err != nil {
 		return nil, err
 	}

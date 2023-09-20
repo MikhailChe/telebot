@@ -6,7 +6,7 @@ import "time"
 type PollType string
 
 const (
-	// NOTE:
+	// PollAny NOTE:
 	// Despite "any" type isn't described in documentation,
 	// it needed for proper KeyboardButtonPollType marshaling.
 	PollAny PollType = "any"

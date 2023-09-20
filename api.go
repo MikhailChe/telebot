@@ -159,14 +159,14 @@ func addFileToWriter(writer *multipart.Writer, filename, field string, file inte
 	return err
 }
 
-func (b *Bot) sendText(to Recipient, text string, opt *SendOptions) (*Message, error) {
+func (b *Bot) sendText(ctx context.Context, to Recipient, text string, opt *SendOptions) (*Message, error) {
 	params := map[string]string{
 		"chat_id": to.Recipient(),
 		"text":    text,
 	}
 	b.embedSendOptions(params, opt)
 
-	data, err := b.Raw(context.TODO(), "sendMessage", params)
+	data, err := b.Raw(ctx, "sendMessage", params)
 	if err != nil {
 		return nil, err
 	}

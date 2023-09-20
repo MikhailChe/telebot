@@ -87,7 +87,7 @@ type Context interface {
 
 	// Send sends a message to the current recipient.
 	// See Send from bot.go.
-	Send(what interface{}, opts ...interface{}) error
+	Send(ctx context.Context, what interface{}, opts ...interface{}) error
 
 	// SendAlbum sends an album to the current recipient.
 	// See SendAlbum from bot.go.
@@ -107,7 +107,7 @@ type Context interface {
 
 	// Edit edits the current message.
 	// See Edit from bot.go.
-	Edit(what interface{}, opts ...interface{}) error
+	Edit(ctx context.Context, what interface{}, opts ...interface{}) error
 
 	// EditCaption edits the caption of the current message.
 	// See EditCaption from bot.go.
@@ -115,11 +115,11 @@ type Context interface {
 
 	// EditOrSend edits the current message if the update is callback,
 	// otherwise the content is sent to the chat as a separate message.
-	EditOrSend(what interface{}, opts ...interface{}) error
+	EditOrSend(ctx context.Context, what interface{}, opts ...interface{}) error
 
 	// EditOrReply edits the current message if the update is callback,
 	// otherwise the content is replied as a separate message.
-	EditOrReply(what interface{}, opts ...interface{}) error
+	EditOrReply(ctx context.Context, what interface{}, opts ...interface{}) error
 
 	// Delete removes the current message.
 	// See Delete from bot.go.
@@ -349,8 +349,8 @@ func (c *nativeContext) Args() []string {
 	return nil
 }
 
-func (c *nativeContext) Send(what interface{}, opts ...interface{}) error {
-	_, err := c.b.Send(c.Recipient(), what, opts...)
+func (c *nativeContext) Send(ctx context.Context, what interface{}, opts ...interface{}) error {
+	_, err := c.b.Send(ctx, c.Recipient(), what, opts...)
 	return err
 }
 
@@ -382,13 +382,13 @@ func (c *nativeContext) ForwardTo(to Recipient, opts ...interface{}) error {
 	return err
 }
 
-func (c *nativeContext) Edit(what interface{}, opts ...interface{}) error {
+func (c *nativeContext) Edit(ctx context.Context, what interface{}, opts ...interface{}) error {
 	if c.u.InlineResult != nil {
-		_, err := c.b.Edit(c.u.InlineResult, what, opts...)
+		_, err := c.b.Edit(ctx, c.u.InlineResult, what, opts...)
 		return err
 	}
 	if c.u.Callback != nil {
-		_, err := c.b.Edit(c.u.Callback, what, opts...)
+		_, err := c.b.Edit(ctx, c.u.Callback, what, opts...)
 		return err
 	}
 	return ErrBadContext
@@ -406,16 +406,16 @@ func (c *nativeContext) EditCaption(caption string, opts ...interface{}) error {
 	return ErrBadContext
 }
 
-func (c *nativeContext) EditOrSend(what interface{}, opts ...interface{}) error {
-	err := c.Edit(what, opts...)
+func (c *nativeContext) EditOrSend(ctx context.Context, what interface{}, opts ...interface{}) error {
+	err := c.Edit(ctx, what, opts...)
 	if err == ErrBadContext {
-		return c.Send(what, opts...)
+		return c.Send(ctx, what, opts...)
 	}
 	return err
 }
 
-func (c *nativeContext) EditOrReply(what interface{}, opts ...interface{}) error {
-	err := c.Edit(what, opts...)
+func (c *nativeContext) EditOrReply(ctx context.Context, what interface{}, opts ...interface{}) error {
+	err := c.Edit(ctx, what, opts...)
 	if err == ErrBadContext {
 		return c.Reply(what, opts...)
 	}

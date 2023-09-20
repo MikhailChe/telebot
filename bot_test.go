@@ -381,12 +381,12 @@ func TestBot(t *testing.T) {
 		t.Skip("CHAT_ID is required for Bot methods test")
 	}
 
-	_, err := b.Send(to, nil)
+	_, err := b.Send(context.TODO(), to, nil)
 	assert.Equal(t, ErrUnsupportedWhat, err)
-	_, err = b.Edit(&Message{Chat: &Chat{}}, nil)
+	_, err = b.Edit(context.TODO(), &Message{Chat: &Chat{}}, nil)
 	assert.Equal(t, ErrUnsupportedWhat, err)
 
-	_, err = b.Send(nil, "")
+	_, err = b.Send(context.TODO(), nil, "")
 	assert.Equal(t, ErrBadRecipient, err)
 	_, err = b.Forward(nil, nil)
 	assert.Equal(t, ErrBadRecipient, err)
@@ -398,7 +398,7 @@ func TestBot(t *testing.T) {
 	var msg *Message
 
 	t.Run("Send(what=Sendable)", func(t *testing.T) {
-		msg, err = b.Send(to, photo)
+		msg, err = b.Send(context.TODO(), to, photo)
 		require.NoError(t, err)
 		assert.NotNil(t, msg.Photo)
 		assert.Equal(t, photo.Caption, msg.Caption)
@@ -446,7 +446,7 @@ func TestBot(t *testing.T) {
 	})
 
 	t.Run("Edit(what=Media)", func(t *testing.T) {
-		edited, err := b.Edit(msg, photo)
+		edited, err := b.Edit(context.TODO(), msg, photo)
 		require.NoError(t, err)
 		assert.Equal(t, edited.Photo.UniqueID, photo.UniqueID)
 
@@ -466,7 +466,7 @@ func TestBot(t *testing.T) {
 			FileName: "animation.gif",
 		}
 
-		msg, err := b.Send(msg.Chat, animation)
+		msg, err := b.Send(context.TODO(), msg.Chat, animation)
 		require.NoError(t, err)
 
 		if msg.Animation != nil {
@@ -475,14 +475,14 @@ func TestBot(t *testing.T) {
 			assert.Equal(t, msg.Document.FileID, animation.FileID)
 		}
 
-		_, err = b.Edit(edited, animation)
+		_, err = b.Edit(context.TODO(), edited, animation)
 		require.NoError(t, err)
 	})
 
 	t.Run("Edit(what=Animation)", func(t *testing.T) {})
 
 	t.Run("Send(what=string)", func(t *testing.T) {
-		msg, err = b.Send(to, t.Name())
+		msg, err = b.Send(context.TODO(), to, t.Name())
 		require.NoError(t, err)
 		assert.Equal(t, t.Name(), msg.Text)
 
@@ -504,11 +504,11 @@ func TestBot(t *testing.T) {
 	})
 
 	t.Run("Edit(what=string)", func(t *testing.T) {
-		msg, err = b.Edit(msg, t.Name())
+		msg, err = b.Edit(context.TODO(), msg, t.Name())
 		require.NoError(t, err)
 		assert.Equal(t, t.Name(), msg.Text)
 
-		_, err = b.Edit(msg, msg.Text)
+		_, err = b.Edit(context.TODO(), msg, msg.Text)
 		assert.Error(t, err) // message is not modified
 	})
 
@@ -530,7 +530,7 @@ func TestBot(t *testing.T) {
 			},
 		}
 
-		edited, err := b.Edit(msg, good)
+		edited, err := b.Edit(context.TODO(), msg, good)
 		require.NoError(t, err)
 		assert.Equal(t, edited.ReplyMarkup.InlineKeyboard, good.InlineKeyboard)
 
@@ -538,18 +538,18 @@ func TestBot(t *testing.T) {
 		require.NoError(t, err)
 		assert.Nil(t, edited.ReplyMarkup)
 
-		_, err = b.Edit(edited, bad)
+		_, err = b.Edit(context.TODO(), edited, bad)
 		assert.Equal(t, ErrBadButtonData, err)
 	})
 
 	t.Run("Edit(what=Location)", func(t *testing.T) {
 		loc := &Location{Lat: 42, Lng: 69, LivePeriod: 60}
-		edited, err := b.Send(to, loc)
+		edited, err := b.Send(context.TODO(), to, loc)
 		require.NoError(t, err)
 		assert.NotNil(t, edited.Location)
 
 		loc = &Location{Lat: loc.Lng, Lng: loc.Lat}
-		edited, err = b.Edit(edited, *loc)
+		edited, err = b.Edit(context.TODO(), edited, *loc)
 		require.NoError(t, err)
 		assert.NotNil(t, edited.Location)
 	})
@@ -571,7 +571,7 @@ func TestBot(t *testing.T) {
 	})
 
 	t.Run("Respond()", func(t *testing.T) {
-		assert.Error(t, b.Respond(&Callback{}, &CallbackResponse{}))
+		assert.Error(t, b.Respond(context.TODO(), &Callback{}, &CallbackResponse{}))
 	})
 
 	t.Run("Payments", func(t *testing.T) {

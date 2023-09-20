@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -26,7 +27,7 @@ func TestPollSend(t *testing.T) {
 		t.Skip("USER_ID is required for Poll methods test")
 	}
 
-	_, err := b.Send(user, &Poll{}) // empty poll
+	_, err := b.Send(context.TODO(), user, &Poll{}) // empty poll
 	assert.Equal(t, ErrBadPollOptions, err)
 
 	poll := &Poll{
@@ -37,7 +38,7 @@ func TestPollSend(t *testing.T) {
 	}
 	poll.AddOptions("1", "2")
 
-	msg, err := b.Send(user, poll)
+	msg, err := b.Send(context.TODO(), user, poll)
 	require.NoError(t, err)
 	assert.Equal(t, poll.Type, msg.Poll.Type)
 	assert.Equal(t, poll.Question, msg.Poll.Question)

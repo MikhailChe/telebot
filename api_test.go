@@ -1,6 +1,7 @@
 package telebot
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -56,10 +57,10 @@ func TestRaw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = b.Raw("BAD METHOD", nil)
+	_, err = b.Raw(context.TODO(), "BAD METHOD", nil)
 	assert.EqualError(t, err, ErrNotFound.Error())
 
-	_, err = b.Raw("", &testPayload{})
+	_, err = b.Raw(context.TODO(), "", &testPayload{})
 	assert.Error(t, err)
 
 	srv := httptest.NewServer(http.HandlerFunc(testRawServer))
@@ -68,10 +69,10 @@ func TestRaw(t *testing.T) {
 	b.URL = srv.URL
 	b.client = srv.Client()
 
-	_, err = b.Raw("testReadError", nil)
+	_, err = b.Raw(context.TODO(), "testReadError", nil)
 	assert.EqualError(t, err, "telebot: "+io.ErrUnexpectedEOF.Error())
 
-	_, err = b.Raw("testUnknownError", nil)
+	_, err = b.Raw(context.TODO(), "testUnknownError", nil)
 	assert.EqualError(t, err, "telegram: unknown error (400)")
 }
 

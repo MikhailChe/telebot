@@ -13,7 +13,7 @@ func AutoRespond() tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(ctx context.Context, c tele.Context) error {
 			if c.Callback() != nil {
-				defer c.Respond()
+				defer c.Respond(ctx)
 			}
 			return next(ctx, c)
 		}

@@ -20,7 +20,7 @@ type Recipient interface {
 // custom Sendables for complex kind of media or
 // chat objects spanning across multiple messages.
 type Sendable interface {
-	Send(*Bot, Recipient, *SendOptions) (*Message, error)
+	Send(context.Context, *Bot, Recipient, *SendOptions) (*Message, error)
 }
 
 // Send delivers media through bot b to recipient.
