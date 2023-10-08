@@ -47,9 +47,13 @@ type PollOption struct {
 
 // PollAnswer represents an answer of a user in a non-anonymous poll.
 type PollAnswer struct {
-	PollID  string `json:"poll_id"`
-	Sender  *User  `json:"user"`
-	Options []int  `json:"option_ids"`
+	PollID string `json:"poll_id"`
+	// Optional. The chat that changed the answer to the poll, if the voter is anonymous
+	Chat *Chat `json:"voter_chat,omitempty"`
+	// Optional. The user that changed the answer to the poll, if the voter isn't anonymous
+	Sender *User `json:"user"`
+	// 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
+	Options []int `json:"option_ids"`
 }
 
 // IsRegular says whether poll is a regular.

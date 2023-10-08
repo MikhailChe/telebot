@@ -112,7 +112,7 @@ type Audio struct {
 
 	// (Optional)
 	Caption   string `json:"caption,omitempty"`
-	Thumbnail *Photo `json:"thumb,omitempty"`
+	Thumbnail *Photo `json:"thumbnail,omitempty"`
 	Title     string `json:"title,omitempty"`
 	Performer string `json:"performer,omitempty"`
 	MIME      string `json:"mime_type,omitempty"`
@@ -140,13 +140,16 @@ func (a *Audio) InputMedia() InputMedia {
 
 // Document object represents a general file (as opposed to Photo or Audio).
 // Telegram users can send files of any type of up to 1.5 GB in size.
+// https://core.telegram.org/bots/api#document
 type Document struct {
 	File
 
 	// (Optional)
-	Thumbnail            *Photo `json:"thumb,omitempty"`
-	Caption              string `json:"caption,omitempty"`
-	MIME                 string `json:"mime_type"`
+	Thumbnail *Photo `json:"thumbnail,omitempty"`
+	Caption   string `json:"caption,omitempty"`
+	// Optional. MIME type of the file as defined by sender
+	MIME string `json:"mime_type,omitempty"`
+	// Optional. Original filename as defined by sender
 	FileName             string `json:"file_name,omitempty"`
 	DisableTypeDetection bool   `json:"disable_content_type_detection,omitempty"`
 }
@@ -178,7 +181,7 @@ type Video struct {
 
 	// (Optional)
 	Caption   string `json:"caption,omitempty"`
-	Thumbnail *Photo `json:"thumb,omitempty"`
+	Thumbnail *Photo `json:"thumbnail,omitempty"`
 	Streaming bool   `json:"supports_streaming,omitempty"`
 	MIME      string `json:"mime_type,omitempty"`
 	FileName  string `json:"file_name,omitempty"`
@@ -205,6 +208,7 @@ func (v *Video) InputMedia() InputMedia {
 }
 
 // Animation object represents a animation file.
+// https://core.telegram.org/bots/api#animation
 type Animation struct {
 	File
 
@@ -214,7 +218,7 @@ type Animation struct {
 
 	// (Optional)
 	Caption   string `json:"caption,omitempty"`
-	Thumbnail *Photo `json:"thumb,omitempty"`
+	Thumbnail *Photo `json:"thumbnail,omitempty"`
 	MIME      string `json:"mime_type,omitempty"`
 	FileName  string `json:"file_name,omitempty"`
 }
@@ -298,6 +302,10 @@ func (s *Sticker) MediaFile() *File {
 	return &s.File
 }
 
+// This object represents a message about a forwarded story in the chat. Currently holds no information.
+type Story struct {
+}
+
 // Contact object represents a contact to Telegram user.
 type Contact struct {
 	PhoneNumber string `json:"phone_number"`
@@ -306,15 +314,25 @@ type Contact struct {
 	// (Optional)
 	LastName string `json:"last_name"`
 	UserID   int64  `json:"user_id,omitempty"`
+	// Additional data about the contact in the form of a [vCard]
+	//
+	// [vCard]: https://en.wikipedia.org/wiki/VCard
+	VCard string `json:"vcard,omitempty"`
 }
 
 // Location object represents geographic position.
+// https://core.telegram.org/bots/api#location
 type Location struct {
-	Lat                float32  `json:"latitude"`
-	Lng                float32  `json:"longitude"`
+	// North or South
+	Lat float32 `json:"latitude"`
+	// East or West
+	Lng float32 `json:"longitude"`
+	// Optional. The radius of uncertainty for the location, measured in meters; 0-1500
 	HorizontalAccuracy *float32 `json:"horizontal_accuracy,omitempty"`
-	Heading            int      `json:"heading,omitempty"`
-	AlertRadius        int      `json:"proximity_alert_radius,omitempty"`
+	// Optional. The direction in which user is moving, in degrees; 1-360. For active live locations only.
+	Heading int `json:"heading,omitempty"`
+	// Optional. The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only.
+	AlertRadius int `json:"proximity_alert_radius,omitempty"`
 
 	// Period in seconds for which the location will be updated
 	// (see Live Locations, should be between 60 and 86400.)

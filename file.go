@@ -11,7 +11,7 @@ type File struct {
 	UniqueID string `json:"file_unique_id"`
 	FileSize int64  `json:"file_size"`
 
-	// FilePath is used for files on Telegram server.
+	// FilePath Optional. File path. Use https:&#47;&#47;api.telegram.org&#47;file&#47;bot<token>&#47;<file_path> to get the file.
 	FilePath string `json:"file_path"`
 
 	// FileLocal is used for files on local file system.
@@ -33,8 +33,7 @@ type File struct {
 // so upon uploading media you'll need to set embedded File
 // with something. NewFile() returning File makes it a one-liner.
 //
-//		photo := &tele.Photo{File: tele.FromDisk("chicken.jpg")}
-//
+//	photo := &tele.Photo{File: tele.FromDisk("chicken.jpg")}
 func FromDisk(filename string) File {
 	return File{FileLocal: filename}
 }
@@ -46,8 +45,7 @@ func FromDisk(filename string) File {
 // so upon uploading media you'll need to set embedded File
 // with something. NewFile() returning File makes it a one-liner.
 //
-//		photo := &tele.Photo{File: tele.FromURL("https://site.com/picture.jpg")}
-//
+//	photo := &tele.Photo{File: tele.FromURL("https://site.com/picture.jpg")}
 func FromURL(url string) File {
 	return File{FileURL: url}
 }
@@ -59,8 +57,7 @@ func FromURL(url string) File {
 // so upon uploading media you'll need to set embedded File
 // with something. NewFile() returning File makes it a one-liner.
 //
-//		photo := &tele.Photo{File: tele.FromReader(bytes.NewReader(...))}
-//
+//	photo := &tele.Photo{File: tele.FromReader(bytes.NewReader(...))}
 func FromReader(reader io.Reader) File {
 	return File{FileReader: reader}
 }

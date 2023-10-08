@@ -31,6 +31,7 @@ func (u *User) Recipient() string {
 }
 
 // Chat object represents a Telegram user, bot, group or a channel.
+// Updated at 2023-10-08
 type Chat struct {
 	ID int64 `json:"id"`
 
@@ -44,21 +45,41 @@ type Chat struct {
 	LastName  string `json:"last_name"`
 	Username  string `json:"username"`
 
-	// Returns only in getChat
-	Bio              string        `json:"bio,omitempty"`
-	Photo            *ChatPhoto    `json:"photo,omitempty"`
-	Description      string        `json:"description,omitempty"`
-	InviteLink       string        `json:"invite_link,omitempty"`
-	PinnedMessage    *Message      `json:"pinned_message,omitempty"`
-	Permissions      *Rights       `json:"permissions,omitempty"`
-	SlowMode         int           `json:"slow_mode_delay,omitempty"`
-	StickerSet       string        `json:"sticker_set_name,omitempty"`
-	CanSetStickerSet bool          `json:"can_set_sticker_set,omitempty"`
-	LinkedChatID     int64         `json:"linked_chat_id,omitempty"`
-	ChatLocation     *ChatLocation `json:"location,omitempty"`
-	Private          bool          `json:"has_private_forwards,omitempty"`
-	Protected        bool          `json:"has_protected_content,omitempty"`
-	NoVoiceAndVideo  bool          `json:"has_restricted_voice_and_video_messages"`
+	Forum bool `json:"is_forum,omitempty"`
+
+	// All the rest are returned only in getChat
+
+	ActiveUsernames []string   `json:"active_usernames,omitempty"`
+	Bio             string     `json:"bio,omitempty"`
+	Photo           *ChatPhoto `json:"photo,omitempty"`
+	Description     string     `json:"description,omitempty"`
+	EmojiStatus     string     `json:"emoji_status_custom_emoji_id,omitempty"`
+	// Optional. Expiration date of the emoji status of the other party in a private chat in Unix time, if any. Returned only in getChat.
+	EmojiStatusExpirationUnixtime int `json:"emoji_status_expiration_date,omitempty"`
+	// Optional. True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in getChat
+	HasAgressiveAntiSpam bool `json:"has_aggressive_anti_spam_enabled,omitempty"`
+	// Optional. True, if non-administrators can only get the list of bots and administrators in the chat. Returned only in getChat.
+	HasHiddenMembers bool     `json:"has_hidden_members,omitempty"`
+	InviteLink       string   `json:"invite_link,omitempty"`
+	PinnedMessage    *Message `json:"pinned_message,omitempty"`
+	Permissions      *Rights  `json:"permissions,omitempty"`
+	// Optional. For supergroups, the minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds. Returned only in getChat.
+	SlowMode         int    `json:"slow_mode_delay,omitempty"`
+	StickerSet       string `json:"sticker_set_name,omitempty"`
+	CanSetStickerSet bool   `json:"can_set_sticker_set,omitempty"`
+	// Optional. True, if users need to join the supergroup before they can send messages. Returned only in getChat.
+	JoinToSend bool `json:"join_to_send_messages,omitempty"`
+	// Optional. True, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in getChat.
+	JoinByRequest bool `json:"join_by_request,omitempty"`
+	// Optional. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats.
+	LinkedChatID int64 `json:"linked_chat_id,omitempty"`
+	// Optional. The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in getChat.
+	MessageAutoDeleteTime int           `json:"message_auto_delete_time,omitempty"`
+	ChatLocation          *ChatLocation `json:"location,omitempty"`
+	Private               bool          `json:"has_private_forwards,omitempty"`
+	// Optional. True, if messages from the chat can't be forwarded to other chats. Returned only in getChat.
+	Protected       bool `json:"has_protected_content,omitempty"`
+	NoVoiceAndVideo bool `json:"has_restricted_voice_and_video_messages"`
 }
 
 // Recipient returns chat ID (see Recipient interface).
@@ -74,7 +95,7 @@ const (
 	ChatGroup          ChatType = "group"
 	ChatSuperGroup     ChatType = "supergroup"
 	ChatChannel        ChatType = "channel"
-	ChatChannelPrivate ChatType = "privatechannel"
+	ChatChannelPrivate ChatType = "privatechannel" // TODO: no such thing!
 )
 
 // ChatLocation represents a location to which a chat is connected.
@@ -450,4 +471,22 @@ func (b *Bot) DeleteGroupStickerSet(chat *Chat) error {
 
 	_, err := b.Raw(context.TODO(), "deleteChatStickerSet", params)
 	return err
+}
+
+// UserShared contains information about the user whose identifier was shared with the bot using a KeyboardButtonRequestUser button.
+// https://core.telegram.org/bots/api#usershared
+type UserShared struct {
+	// Identifier of the request
+	Request int64 `json:"request_id"`
+	// Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means.
+	User int64 `json:"user_id"`
+}
+
+// ChatShared contains information about the chat whose identifier was shared with the bot using a KeyboardButtonRequestChat button
+// https://core.telegram.org/bots/api#chatshared
+type ChatShared struct {
+	// Identifier of the request
+	Request int64 `json:"request_id"`
+	// Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
+	User int64 `json:"chat_id"`
 }

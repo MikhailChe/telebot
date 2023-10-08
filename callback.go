@@ -22,9 +22,15 @@ type Callback struct {
 	// sent via the bot in inline mode.
 	MessageID string `json:"inline_message_id"`
 
+	// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
+	Chat string `json:"chat_instance"`
+
 	// Data associated with the callback button. Be aware that
 	// a bad client can send arbitrary data in this field.
 	Data string `json:"data"`
+
+	// Optional. Short name of a Game to be returned, serves as the unique identifier for the game
+	Game string `json:"game_short_name"`
 
 	// Unique displays an unique of the button from which the
 	// callback was fired. Sets immediately before the handling,

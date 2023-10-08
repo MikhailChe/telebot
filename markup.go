@@ -25,6 +25,9 @@ type ReplyMarkup struct {
 	// has selected the bot‘s message and tapped "Reply").
 	ForceReply bool `json:"force_reply,omitempty"`
 
+	// Optional. Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
+	Persistent bool `json:"is_persistent,omitempty"`
+
 	// Requests clients to resize the keyboard vertically for optimal fit
 	// (e.g. make the keyboard smaller if there are just two rows of buttons).
 	//
@@ -33,6 +36,7 @@ type ReplyMarkup struct {
 	ResizeKeyboard bool `json:"resize_keyboard,omitempty"`
 
 	// Requests clients to hide the reply keyboard as soon as it's been used.
+	// The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again.
 	//
 	// Defaults to false.
 	OneTimeKeyboard bool `json:"one_time_keyboard,omitempty"`
@@ -106,7 +110,6 @@ func (r *ReplyMarkup) Row(many ...Btn) Row {
 //
 // `Split(3, []Btn{six buttons...}) -> [[1, 2, 3], [4, 5, 6]]`
 // `Split(2, []Btn{six buttons...}) -> [[1, 2],[3, 4],[5, 6]]`
-//
 func (r *ReplyMarkup) Split(max int, btns []Btn) []Row {
 	rows := make([]Row, (max-1+len(btns))/max)
 	for i, b := range btns {
@@ -202,14 +205,17 @@ func (r *ReplyMarkup) WebApp(text string, app *WebApp) Btn {
 //
 // Set either Contact or Location to true in order to request
 // sensitive info, such as user's phone number or current location.
-//
 type ReplyButton struct {
 	Text string `json:"text"`
 
-	Contact  bool     `json:"request_contact,omitempty"`
-	Location bool     `json:"request_location,omitempty"`
-	Poll     PollType `json:"request_poll,omitempty"`
-	WebApp   *WebApp  `json:"web_app,omitempty"`
+	// Optional. If specified, pressing the button will open a list of suitable users. Tapping on any user will send their identifier to the bot in a “user_shared” service message. Available in private chats only.
+	User *KeyboardButtonRequestUser `json:"request_user,omitempty"`
+	// Optional. If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat_shared” service message. Available in private chats only.
+	Chat     *KeyboardButtonRequestChat `json:"request_chat,omitempty"`
+	Contact  bool                       `json:"request_contact,omitempty"`
+	Location bool                       `json:"request_location,omitempty"`
+	Poll     PollType                   `json:"request_poll,omitempty"`
+	WebApp   *WebApp                    `json:"web_app,omitempty"`
 }
 
 // MarshalJSON implements json.Marshaler. It allows passing PollType as a
@@ -230,13 +236,27 @@ type InlineButton struct {
 	// It will be used as a callback endpoint.
 	Unique string `json:"unique,omitempty"`
 
-	Text            string  `json:"text"`
-	URL             string  `json:"url,omitempty"`
-	Data            string  `json:"callback_data,omitempty"`
-	InlineQuery     string  `json:"switch_inline_query,omitempty"`
-	InlineQueryChat string  `json:"switch_inline_query_current_chat"`
-	Login           *Login  `json:"login_url,omitempty"`
-	WebApp          *WebApp `json:"web_app,omitempty"`
+	Text string `json:"text"`
+
+	// Optional fields. You must use exactly one of the optional
+
+	URL    string  `json:"url,omitempty"`
+	Data   string  `json:"callback_data,omitempty"`
+	WebApp *WebApp `json:"web_app,omitempty"`
+	// Optional. An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget
+	Login *Login `json:"login_url,omitempty"`
+	// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted.
+	InlineQuery *string `json:"switch_inline_query,omitempty"`
+	// Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.
+	//
+	// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options.
+	InlineQueryChat *string `json:"switch_inline_query_current_chat,omitempty"`
+	// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field
+	InlineQueryChosenChat *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`
+	// Optional. Specify True, to send a Pay button.
+	//
+	// NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
+	Pay bool `json:"pay,omitempty"`
 }
 
 // MarshalJSON implements json.Marshaler interface.
@@ -320,3 +340,44 @@ const (
 	MenuButtonCommands MenuButtonType = "commands"
 	MenuButtonWebApp   MenuButtonType = "web_app"
 )
+
+// KeyboardButtonRequestUser defines the criteria used to request a suitable user. The identifier of the selected user will be shared with the bot when the corresponding button is pressed. More about requesting users https://core.telegram.org/bots/features#chat-and-user-selection
+//
+// https://core.telegram.org/bots/api#keyboardbuttonrequestuser
+type KeyboardButtonRequestUser struct {
+	// Signed 32-bit identifier of the request, which will be received back in the UserShared object. Must be unique within the message
+	Request int32 `json:"request_id"`
+	// Optional. Pass True to request a bot, pass False to request a regular user. If not specified, no additional restrictions are applied.
+	Bots *bool `json:"user_is_bot,omitempty"`
+	// Optional. Pass True to request a premium user, pass False to request a non-premium user. If not specified, no additional restrictions are applied.
+	Premium *bool `json:"user_is_premium,omitempty"`
+}
+
+// KeyboardButtonRequestChat defines the criteria used to request a suitable chat. The identifier of the selected chat will be shared with the bot when the corresponding button is pressed. More about requesting chats https://core.telegram.org/bots/features#chat-and-user-selection
+//
+// https://core.telegram.org/bots/api#keyboardbuttonrequestchat
+type KeyboardButtonRequestChat struct {
+	// Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message
+	Request               int32   `json:"request_id"`
+	Channel               *bool   `json:"chat_is_channel"`
+	Forum                 *bool   `json:"chat_is_forum"`
+	WithUsername          *bool   `json:"chat_has_username"`
+	OwnedByUser           bool    `json:"chat_is_created,omitempty"`
+	UserAdminRightsFilter *Rights `json:"user_administrator_rights,omitempty"`
+	BotAdminRightsFilter  *Rights `json:"bot_administrator_rights,omitempty"`
+	WithBotAsMember       bool    `json:"bot_is_member,omitempty"`
+}
+
+// SwitchInlineQueryChosenChat represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
+type SwitchInlineQueryChosenChat struct {
+	//Optional. The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
+	InlineText string `json:"query"`
+	// Optional. True, if private chats with users can be chosen
+	UserChats bool `json:"allow_user_chats"`
+	// Optional. True, if private chats with bots can be chosen
+	BotChats bool `json:"allow_bot_chats"`
+	// Optional. True, if group and supergroup chats can be chosen
+	GroupChats bool `json:"allow_group_chats"`
+	// Optional. True, if channel chats can be chosen
+	ChannelChats bool `json:"allow_channel_chats"`
+}

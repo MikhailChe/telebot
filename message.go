@@ -9,6 +9,8 @@ import (
 // Message object represents a message.
 type Message struct {
 	ID int `json:"message_id"`
+	// Optional. Unique identifier of a message thread to which the message belongs; for supergroups only
+	Thread int `json:"message_thread_id,omitempty"`
 
 	// For message sent to channels, Sender will be nil
 	Sender *User `json:"from"`
@@ -23,50 +25,53 @@ type Message struct {
 	SenderChat *Chat `json:"sender_chat"`
 
 	// For forwarded messages, sender of the original message.
-	OriginalSender *User `json:"forward_from"`
+	OriginalSender *User `json:"forward_from,omitempty"`
 
 	// For forwarded messages, chat of the original message when
 	// forwarded from a channel.
-	OriginalChat *Chat `json:"forward_from_chat"`
+	OriginalChat *Chat `json:"forward_from_chat,omitempty"`
 
 	// For forwarded messages, identifier of the original message
 	// when forwarded from a channel.
-	OriginalMessageID int `json:"forward_from_message_id"`
+	OriginalMessageID int `json:"forward_from_message_id,omitempty"`
 
 	// For forwarded messages, signature of the post author.
-	OriginalSignature string `json:"forward_signature"`
+	OriginalSignature string `json:"forward_signature,omitempty"`
 
 	// For forwarded messages, sender's name from users who
 	// disallow adding a link to their account.
-	OriginalSenderName string `json:"forward_sender_name"`
+	OriginalSenderName string `json:"forward_sender_name,omitempty"`
 
 	// For forwarded messages, unixtime of the original message.
-	OriginalUnixtime int `json:"forward_date"`
+	OriginalUnixtime int `json:"forward_date,omitempty"`
+
+	// Optional. True, if the message is sent to a forum topic
+	TopicMessage bool `json:"is_topic_message,omitempty"`
 
 	// Message is a channel post that was automatically forwarded to the connected discussion group.
-	AutomaticForward bool `json:"is_automatic_forward"`
+	AutomaticForward bool `json:"is_automatic_forward,omitempty"`
 
 	// For replies, ReplyTo represents the original message.
 	//
 	// Note that the Message object in this field will not
 	// contain further ReplyTo fields even if it
 	// itself is a reply.
-	ReplyTo *Message `json:"reply_to_message"`
+	ReplyTo *Message `json:"reply_to_message,omitempty"`
 
 	// Shows through which bot the message was sent.
-	Via *User `json:"via_bot"`
+	Via *User `json:"via_bot,omitempty"`
 
 	// (Optional) Time of last edit in Unix.
-	LastEdit int64 `json:"edit_date"`
+	LastEdit int64 `json:"edit_date,omitempty"`
 
 	// (Optional) Message can't be forwarded.
 	Protected bool `json:"has_protected_content,omitempty"`
 
 	// AlbumID is the unique identifier of a media message group
 	// this message belongs to.
-	AlbumID string `json:"media_group_id"`
+	AlbumID string `json:"media_group_id,omitempty"`
 
-	// Author signature (in channels).
+	// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
 	Signature string `json:"author_signature"`
 
 	// For a text message, the actual UTF-8 text of the message.
@@ -88,6 +93,9 @@ type Message struct {
 	// bot commands, etc. that appear in the caption.
 	CaptionEntities Entities `json:"caption_entities,omitempty"`
 
+	// Optional. True, if the message media is covered by a spoiler animation
+	HasMediaSpoiler bool `json:"has_media_spoiler,omitempty"`
+
 	// For an audio recording, information about it.
 	Audio *Audio `json:"audio"`
 
@@ -99,6 +107,9 @@ type Message struct {
 
 	// For a sticker, information about it.
 	Sticker *Sticker `json:"sticker"`
+
+	// For stories
+	Story *Story `json:"story,omitempty"`
 
 	// For a voice message, information about it.
 	Voice *Voice `json:"voice"`
@@ -223,8 +234,38 @@ type Message struct {
 	// Message is a service message about a successful payment.
 	Payment *Payment `json:"successful_payment"`
 
+	// Optional. Service message: a user was shared with the bot
+	UserShared *UserShared `json:"user_shared,omitempty"`
+
+	// Optional. Service message: a chat was shared with the bot
+	ChatShared *ChatShared `json:"chat_shared,omitempty"`
+
 	// The domain name of the website on which the user has logged in.
 	ConnectedWebsite string `json:"connected_website,omitempty"`
+
+	// Optional. Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+	WriteAccessAllowed *WriteAccessAllowed `json:"write_access_allowed,omitempty"`
+
+	// Optional. Telegram Passport data
+	PassportData *PassportData `json:"passport_data,omitempty"`
+
+	// Optional. Service message: forum topic created
+	ForumTopicCreated *ForumTopicCreated `json:"forum_topic_created,omitempty"`
+
+	// Optional. Service message: forum topic edited
+	ForumTopicEdited *ForumTopicEdited `json:"forum_topic_edited,omitempty"`
+
+	// Optional. Service message: forum topic closed
+	ForumTopicClosed *ForumTopicClosed `json:"forum_topic_closed,omitempty"`
+
+	// Optional. Service message: forum topic reopened
+	ForumTopicReopened *ForumTopicReopened `json:"forum_topic_reopened,omitempty"`
+
+	// Optional. Service message: the 'General' forum topic hidden
+	GeneralForumTopicHidden *GeneralForumTopicHidden `json:"general_forum_topic_hidden,omitempty"`
+
+	// Optional. Service message: the 'General' forum topic unhidden
+	GeneralForumTopicUnhidden *GeneralForumTopicUnhidden `json:"general_forum_topic_unhidden,omitempty"`
 
 	// For a service message, a video chat started in the chat.
 	VideoChatStarted *VideoChatStarted `json:"video_chat_started,omitempty"`
@@ -254,6 +295,7 @@ type Message struct {
 
 // MessageEntity object represents "special" parts of text messages,
 // including hashtags, usernames, URLs, etc.
+// https://core.telegram.org/bots/api#messageentity
 type MessageEntity struct {
 	// Specifies entity type.
 	Type EntityType `json:"type"`
@@ -275,7 +317,7 @@ type MessageEntity struct {
 	// (Optional) For EntityCodeBlock entity type only.
 	Language string `json:"language,omitempty"`
 
-	// (Optional) For EntityCustomEmoji entity type only.
+	// (Optional) For EntityCustomEmoji entity type only. Use getCustomEmojiStickers to get full information about the sticker
 	CustomEmoji string `json:"custom_emoji_id"`
 }
 
@@ -365,7 +407,6 @@ func (m *Message) FromChannel() bool {
 // Service messages are automatically sent messages, which
 // typically occur on some global action. For instance, when
 // anyone leaves the chat or chat title changes.
-//
 func (m *Message) IsService() bool {
 	fact := false
 
@@ -386,7 +427,6 @@ func (m *Message) IsService() bool {
 //
 // It's safer than manually slicing Text because Telegram uses
 // UTF-16 indices whereas Go string are []byte.
-//
 func (m *Message) EntityText(e MessageEntity) string {
 	text := m.Text
 	if text == "" {
